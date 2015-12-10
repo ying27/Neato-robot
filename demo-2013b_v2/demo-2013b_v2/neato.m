@@ -8,8 +8,8 @@ hist = {}; % Will record all the robot data
 prompt = {'Connection information',};
 dlg_title = 'Connection';
 num_lines = 1;
-%def = {'172.16.10.5:20000',};  % Robot A
-def = {'172.16.10.5:20001',};  % Robot B
+def = {'172.16.10.5:20000',};  % Robot A
+%def = {'172.16.10.5:20001',};  % Robot B
 %def = {'172.16.10.5:20002',};  % Robot C
 
 
@@ -36,29 +36,7 @@ if length(strfind(class(sck.skt()),'java.net.Socket')) == 1
     
     if serialOK   % Communication Raspery - NEATO is running
         
-        % Send data mode message (required handshaking)
-        msg = ['DataMode listener']; % altres modes constant  moody
-        data = sck.sendMsg(sck,msg);
-        display(data);
-        
-        
-        msg = ['JoystickMode off']; % altres modes constant  moody
-        data = sck.sendMsg(sck,msg);
-        display(data);
-        
-        % Wait lidar start
-        wait_lidar();
-        
-        %########## END NEEDED CODE ######################
-                
-        %#################################################
-        %### Demo robot movement and data acquisition ###
-        
-        move(0.5,sck);
-        rotate('r',sck);
-        move(0.5,sck);
-        rotate('l',sck);
-        move(0.5,sck);
+        main(sck);
         
         % Close connection
         sck.close(sck);
