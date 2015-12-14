@@ -25,7 +25,6 @@ function main(sck)
         m.setDot(g(i,1),g(i,2));
     end
     
-    m.showMap;
     
     
     

@@ -8,9 +8,9 @@ hist = {}; % Will record all the robot data
 prompt = {'Connection information',};
 dlg_title = 'Connection';
 num_lines = 1;
-def = {'172.16.10.5:20000',};  % Robot A
+%def = {'172.16.10.5:20000',};  % Robot A
 %def = {'172.16.10.5:20001',};  % Robot B
-%def = {'172.16.10.5:20002',};  % Robot C
+def = {'172.16.10.5:20002',};  % Robot C
 
 
 conn = inputdlg(prompt,dlg_title,num_lines,def);
@@ -44,15 +44,3 @@ if length(strfind(class(sck.skt()),'java.net.Socket')) == 1
 end
 
 %######## End Code ##########
-
-%######## Functions ##########
-    function wait_lidar()  % Wait 4 seconds for lidar wake up
-        wt = waitbar(0,'Waiting Lidar Start...');
-        for p=1:4
-            pause(1);
-            waitbar(p/4,wt,'Waiting Lidar Start......');
-        end
-        close(wt);
-    end
-
-end
