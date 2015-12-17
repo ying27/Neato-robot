@@ -1,4 +1,5 @@
-function [a] = getObjects(x,y,orient, ldsscan)
+function [a] = getObjects(x,y,orient, sck)
+    ldsscan = readLDS(sck);
     [h w] = size(ldsscan);
     
     for i = 1:h
@@ -24,7 +25,7 @@ function [a] = getObjects(x,y,orient, ldsscan)
         
         
     for i = 1:h
-        a(i) = [a(i,1)*tx,a(i,2)*ty];        
+        a(i) = [a(i,1)*tx+x,a(i,2)*ty+y];        
     end
     
 end

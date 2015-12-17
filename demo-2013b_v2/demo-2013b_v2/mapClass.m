@@ -7,7 +7,7 @@ classdef mapClass<handle
        
        function obj = mapClass()
            obj@handle();
-           obj.map = logical(imread('map_20_bw.png'));  
+           obj.map = logical(imread('map_100_bw.png'));
        end
               
        function ret = isEmpty(obj,x,y)

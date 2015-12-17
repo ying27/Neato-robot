@@ -19,16 +19,33 @@ function main(sck)
 
     m = mapClass();
     
-    re = readLDS(sck);
-    g(:,:) = getObjects(25,5,2, re);
-    for i = 1 : size(g,1)
-        m.setDot(g(i,1),g(i,2));
-    end
+    rob = robotClass(sck);
     
-    m.showMap;
+    %ldsscan = readLDS(sck)
+    
+    g(:,:) = getObjects(25,5,2, sck);
+    %for i = 1 : size(g,1)
+    %    m.setDot(g(i,1),g(i,2));
+    %end
+    
+    %m.showMap;
+
+     %{
+    rob.rotateTo('l',sck);
+    rob.detect(sck)
+    rob.rotateTo('l',sck);
+    rob.detect(sck)
+    rob.rotateTo('l',sck);
+    rob.detect(sck)
+    rob.rotateTo('l',sck);
+    rob.detect(sck)
+    %}
     
     
+    %rob.moveTo(5,sck);
+    %move(0.5,sck);
     
+    %rob.move(5,sck);
     
     %[l,r] = readWheelPosition(sck)
     

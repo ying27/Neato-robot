@@ -9,8 +9,9 @@ prompt = {'Connection information',};
 dlg_title = 'Connection';
 num_lines = 1;
 %def = {'172.16.10.5:20000',};  % Robot A
-def = {'172.16.10.5:20001',};  % Robot B
+%def = {'172.16.10.5:20001',};  % Robot B
 %def = {'172.16.10.5:20002',};  % Robot C
+def = {'172.16.10.5:20004',};  % Robot E
 
 
 conn = inputdlg(prompt,dlg_title,num_lines,def);
