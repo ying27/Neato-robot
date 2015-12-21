@@ -2,30 +2,27 @@ function [a] = getObjects(x,y,orient, sck)
     ldsscan = readLDS(sck);
     [h w] = size(ldsscan);
     
-    for i = 1:h
-        newx = sin(ldsscan(i,1))*(ldsscan(i,2)/50)+x;
-        newy = cos(ldsscan(i,1))*(ldsscan(i,2)/50)+y;
-        a(i,:) = [newx,newy];
-    end
+    a = zeros(h,2);
     
-    
-    
-    if orient == 0
-        tx = -1;
-        ty = -1;
-    elseif orient == 1
-        tx = 1;
-        ty = -1
-    elseif orient == 2
-        tx = 1;
-        ty = 1;
+    if (orient == 0)
+      for i = 1 : h
+         a(i,:) = [-ldsscan(i,2)+x,ldsscan(i,1)+y];
+      end 
+      
+    elseif (orient == 1)
+      for i = 1 : h
+         a(i,:) = [ldsscan(i,1)+x,ldsscan(i,2)+y];
+      end
+      
+    elseif (orient == 2)
+      for i = 1 : h
+         a(i,:) = [ldsscan(i,2)+x,-ldsscan(i,1)+y];
+      end
+      
     else
-        tx = -1;
-        ty = 1;
-        
-        
-    for i = 1:h
-        a(i) = [a(i,1)*tx+x,a(i,2)*ty+y];        
-    end
+      for i = 1 : h
+         a(i,:) = [-ldsscan(i,1)+x,-ldsscan(i,2)+y];
+      end      
+    end    
     
 end

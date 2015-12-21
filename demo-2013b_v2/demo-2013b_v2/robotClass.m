@@ -10,9 +10,9 @@ classdef robotClass<handle
        
        function obj = robotClass(sck)
            obj@handle();
-           obj.x = 62;
-           obj.y = 20;
-           obj.orientation = 0;
+           obj.x = 132;
+           obj.y = 95;
+           obj.orientation = 2;
            obj.sck = sck;
        end
                      
@@ -72,8 +72,7 @@ classdef robotClass<handle
           
           i = 1;
           
-          while (i < h && ~ret)      
-              
+          while (i < h && ~ret)
               
             if (ldsscan(i,1) >= 294 || ldsscan(i,1) <= 26)
                 
@@ -95,8 +94,6 @@ classdef robotClass<handle
                   end
                end
             end
-            
-            
             
             i = i+1;
             
