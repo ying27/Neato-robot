@@ -13,9 +13,15 @@ classdef robotClass<handle
         
         function obj = robotClass(sck,map)
             obj@handle();
+            
+            %Punto C
             obj.x = 132;
             obj.y = 95;
-            obj.orientation = 2;
+            
+            %grados respecto a al eje x del mapa
+            %el eje x del robot es mirando en frente
+            obj.orientation = 0;
+            
             obj.sck = sck;
             obj.leftWheel = 0;
             obj.rightWheel = 0;
@@ -30,33 +36,28 @@ classdef robotClass<handle
             ret = obj.map.getMap();
         end
         
+        function [a,b] = lo2glo(obj,x,y)
+            %Transforms local coordinates to global coordinates
+            xx = cos(obj.orientation)*x + sin(obj.orientation)*y
+            yy = -sin(obj.orientation)*x + cos(obj.orientation)*y
+            [a,b] = local2globalcoord([xx;yy;0],'rr',[obj.x;obj.y;0])
+        end
+           
+        function [a,b] = glo2lo(obj,x,y)
+            %Transforms global coordinates to local coordinates
+            xx = cos(obj.orientation)*x + sin(obj.orientation)*y
+            yy = -sin(obj.orientation)*x + cos(obj.orientation)*y
+            [a,b] = global2localcoord([xx;yy;0],'rr',[obj.x;obj.y;0])
+        end
+        
         function [a] = getObjects(obj)
+            %Returns objects in the global coordinates system
             ldsscan = readLDS(obj.sck);
             [h w] = size(ldsscan);
-            
-            a = zeros(h,2);
-            
-            if (obj.orientation == 0)
-                for i = 1 : h
-                    a(i,:) = [-ldsscan(i,2)+obj.x,ldsscan(i,1)+obj.y];
-                end
-                
-            elseif (obj.orientation == 1)
-                for i = 1 : h
-                    a(i,:) = [ldsscan(i,1)+obj.x,ldsscan(i,2)+obj.y];
-                end
-                
-            elseif (obj.orientation == 2)
-                for i = 1 : h
-                    a(i,:) = [ldsscan(i,2)+obj.x,-ldsscan(i,1)+obj.y];
-                end
-                
-            else
-                for i = 1 : h
-                    a(i,:) = [-ldsscan(i,1)+obj.x,-ldsscan(i,2)+obj.y];
-                end
-            end
-            
+            a = zeros(h,2);            
+            for i = 1 : h
+                a(i,:) = obj.lo2glo(ldsscan(i,1),ldsscan(i,2));
+            end            
         end
         
         function [l,r] = readWheelPosition(obj)
@@ -71,8 +72,21 @@ classdef robotClass<handle
             obj.rightWheel = raux;
         end
         
-        function okay = moveTo(obj,dist)
-            dist = 10*dist;
+        function okay = moveTo(obj,x,y)
+            
+            dist = sqrt((x-obj.x)^2+(y-obj.y)^2);
+            
+            [x,y] = obj.glo2lo(x,y);
+            
+            alpha = atan2(y, x) - atan2(0, 1);
+            alpha = alpha * 360 / (2*pi);
+            if (alpha < 0)
+                alpha = alpha + 360;
+            end
+                        
+            %Rotate the robot to the correct orientation
+            obj.rotate(alpha);
+            
             speed = 120;
             msg = ['SetMotor LWheelDist ', num2str(dist) ,' RWheelDist ', num2str(dist) , ' Speed ', num2str(speed)];
             datam = obj.sck.sendMsg(obj.sck,msg);
@@ -82,31 +96,21 @@ classdef robotClass<handle
             obj.map.setAllDots(aux);
         end
         
-        function rotateTo(obj,dir)
-            dist = 190;
+        function rotate(obj,alpha)
+            %Alpha must be positive
+            rel = 190/90;
             speed = 120;
-            if dir == 'l'
-                msg = ['SetMotor LWheelDist ', num2str(-dist) ,' RWheelDist ', num2str(dist) , ' Speed ', num2str(speed)];
-            else
-                msg = ['SetMotor LWheelDist ', num2str(dist) ,' RWheelDist ', num2str(-dist) , ' Speed ', num2str(speed)];
-            end
+            dist = round(alpha*rel);
+            msg = ['SetMotor LWheelDist ', num2str(-dist) ,' RWheelDist ', num2str(dist) , ' Speed ', num2str(speed)];
             obj.sck.sendMsg(obj.sck,msg);
             datam = obj.sck.sendMsg(obj.sck,msg);
             display(datam);
-            pause(abs(dist/speed));
+            pause(abs(dist/speed));            
             
-            if obj.orientation == 0 && dir == 'l'
-                obj.orientation = 3;
-            elseif obj.orientation == 3 && dir == 'r'
-                obj.orientation = 0;
-            elseif dir == 'l'
-                obj.orientation = dir-1;
-            else
-                obj.orientation = dir+1;
-            end
+            obj.orientation = mod(obj.orientation + alpha,360);
         end
         
-        function ret = detect(~)
+        function ret = detect(obj)
             ret = false;
             ldsscan = readLDS(obj.sck);
             [h,w] = size(ldsscan);
@@ -153,11 +157,15 @@ classdef robotClass<handle
                 t = toc;
             end
             %TODO: check if distant 0 and speed 0 works
-            msg = ['SetMotor LWheelDist ', num2str(0) ,' RWheelDist ', num2str(0) , ' Speed ', num2str(0)];
+            msg = ['SetMotor LWheelDist ', num2str(0) ,' RWheelDist ', num2str(0) , ' Speed ', num2str(1)];
             obj.sck.sendMsg(obj.sck,msg);
-            
+                        
             [l,r] = obj.readWheelPosition();
-            
+            dist = round(((l+r)/2)/10);
+            [a,b] = lo2glo(obj,0,dist);
+            obj.x = a;
+            obj.y = b;
+            %{
             if ~okay
                 dist = round(((l+r)/2)/10);
                 l = mod(l,10);
@@ -170,17 +178,7 @@ classdef robotClass<handle
                     pause(dist/sp);
                 end
             end
-            
-            if obj.orientation == 0
-                obj.x = obj.x-dist;
-            elseif obj.orientation == 1
-                obj.y = obj.y+dist;
-            elseif obj.orientation == 2
-                obj.x = obj.x+dist;
-            else
-                obj.y = obj.y-dist;
-            end
-            
+          %}
         end      
         
     end
