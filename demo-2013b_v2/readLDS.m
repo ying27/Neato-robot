@@ -14,10 +14,7 @@ function [ret] = readLDS(sck)
            parsed(index,:) = [index,0,0];
        end       
        
-    end
-    
-    parsed
-    
+    end   
     
     for i = 1:90
         if (parsed(i,2) ~= 0)
@@ -66,14 +63,7 @@ function [ret] = readLDS(sck)
             ret(j,:) = [round(newx),round(newy)];
             j = j + 1;
         end
-    end
-    
-    
-    
-    
-    
-    
-    
+    end    
     
     
 end

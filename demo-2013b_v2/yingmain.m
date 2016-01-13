@@ -17,9 +17,9 @@ function yingmain(sck)
     %### Demo robot movement and data acquisition ###
 
     m = mapClass();    
-    rob = robotClass(sck);
+    rob = robotClass(sck,m);
     
-    aux = getObjects(rob.x,rob.y,rob.orientation,sck);
+    aux = rob.getObjects(sck);
     
     %scatter(aux(:,1),aux(:,2))
     
