@@ -15,19 +15,22 @@ function yingmain(sck)
 
     %#################################################
     %### Demo robot movement and data acquisition ###
-
+    
     m = mapClass();    
     rob = robotClass(sck,m);
     
-    aux = rob.getObjects(sck);
+    aux = rob.getObjects();
+    
+    scatter(aux(:,1),aux(:,2));
+    
+    %m.setAllDots(aux);
+    %m.showMap();
     
     %scatter(aux(:,1),aux(:,2))
     
-    m.setAllDots(aux);
-    m.showMap();
     
-    %scatter(aux(:,1),aux(:,2))
-    
+    %ldsscan = readLDS(sck);
+    %scatter(ldsscan(:,1),ldsscan(:,2))
     
 end
 

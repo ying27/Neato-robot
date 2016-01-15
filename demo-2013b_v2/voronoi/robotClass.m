@@ -15,8 +15,10 @@ classdef robotClass<handle
             obj@handle();
             
             %Punto C
-            obj.x = 132;
-            obj.y = 95;
+            %obj.x = 132;
+            %obj.y = 95;
+            obj.x = 0;
+            obj.y = 0;
             
             %grados respecto a al eje x del mapa
             %el eje x del robot es mirando en frente
@@ -36,28 +38,35 @@ classdef robotClass<handle
             ret = obj.map.getMap();
         end
         
-        function [a,b] = lo2glo(obj,x,y)
+        function [a,b] = lo2glo(obj,xx,yy)
             %Transforms local coordinates to global coordinates
-            xx = cos(obj.orientation)*x + sin(obj.orientation)*y
-            yy = -sin(obj.orientation)*x + cos(obj.orientation)*y
-            [a,b] = local2globalcoord([xx;yy;0],'rr',[obj.x;obj.y;0])
+            %xx = cos(obj.orientation)*x + sin(obj.orientation)*y;
+            %yy = -sin(obj.orientation)*x + cos(obj.orientation)*y;
+            q = local2globalcoord([xx;yy;0],'rr',[obj.x;obj.y;0]);
+            a = q(1);
+            b = q(2);
         end
            
         function [a,b] = glo2lo(obj,x,y)
             %Transforms global coordinates to local coordinates
-            xx = cos(obj.orientation)*x + sin(obj.orientation)*y
-            yy = -sin(obj.orientation)*x + cos(obj.orientation)*y
-            [a,b] = global2localcoord([xx;yy;0],'rr',[obj.x;obj.y;0])
+            xx = cos(obj.orientation)*x + sin(obj.orientation)*y;
+            yy = -sin(obj.orientation)*x + cos(obj.orientation)*y;
+            q = global2localcoord([xx;yy;0],'rr',[obj.x;obj.y;0]);
+            a = q(1);
+            b = q(2);
         end
         
         function [a] = getObjects(obj)
             %Returns objects in the global coordinates system
             ldsscan = readLDS(obj.sck);
             [h w] = size(ldsscan);
-            a = zeros(h,2);            
+            a = zeros(h,2);
+            
             for i = 1 : h
-                a(i,:) = obj.lo2glo(ldsscan(i,1),ldsscan(i,2));
-            end            
+                [q,w] = obj.lo2glo(ldsscan(i,1),ldsscan(i,2));
+                a(i,:) = [q,w];
+            end
+            
         end
         
         function [l,r] = readWheelPosition(obj)
@@ -76,7 +85,9 @@ classdef robotClass<handle
             
             dist = sqrt((x-obj.x)^2+(y-obj.y)^2);
             
-            [x,y] = obj.glo2lo(x,y);
+            q = obj.glo2lo(x,y)';
+            x = q(1);
+            y = q(2);
             
             alpha = atan2(y, x) - atan2(0, 1);
             alpha = alpha * 360 / (2*pi);
