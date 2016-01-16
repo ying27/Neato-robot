@@ -143,6 +143,14 @@ classdef directedMap<handle
            end
        end
        
+       function qp = getQueuePath(obj,c,d)
+           import java.util.LinkedList
+           pa = obj.getPath(c,d);
+           qp = LinkedList();
+           for i = 1 : size(pa)
+               qp.add(pa(i,:));               
+           end
+       end
        
        function showPath(obj,c,d)
            pa = obj.getPath(c,d);

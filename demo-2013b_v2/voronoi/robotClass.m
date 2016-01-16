@@ -11,12 +11,12 @@ classdef robotClass<handle
     
     methods
         
-        function obj = robotClass(sck,map)
+        function obj = robotClass(sck,x,y,map)
             obj@handle();
             
             %Punto C
-            obj.x = 132;
-            obj.y = 95;
+            obj.x = x;
+            obj.y = y;
             
             %grados respecto a al eje x del mapa
             %el eje x del robot es mirando en frente
