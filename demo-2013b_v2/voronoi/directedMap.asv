@@ -131,10 +131,11 @@ classdef directedMap<handle
                    end
                end
                p(end+1,:) = aux;
-               if aux(1) == x && aux(2) == y
-                   q = [];
-               else
+               if aux(1)~= x && aux(2) ~= y
                    q = cell2mat(obj.m(aux(1),aux(2)));
+               else
+                   p
+                   q = []
                end
            end
            
