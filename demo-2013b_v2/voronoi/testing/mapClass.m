@@ -29,6 +29,20 @@ classdef mapClass<handle
            end
        end
        
+       function showPathInMap(obj,a)
+           [h w] = size(a);
+           aux = obj.map;
+           
+           for i=1 : h
+               if a(i,1) > 0 && a(i,2) > 0
+                   aux(a(i,1),a(i,2)) = 0;
+               end
+           end
+           
+           imshow(aux);
+           
+       end
+       
        
        function ret = getMap(obj)
            ret = obj.map;

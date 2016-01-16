@@ -29,10 +29,42 @@ classdef mapClass<handle
            end
        end
        
+       function showPathInMap(obj,a)
+           [h w] = size(a);
+           aux = obj.map;
+           
+           for i=1 : h
+               if a(i,1) > 0 && a(i,2) > 0
+                   aux(a(i,1),a(i,2)) = 0;
+               end
+           end
+           
+           imshow(aux);
+           
+       end
+       
        
        function ret = getMap(obj)
            ret = obj.map;
-       end  
+       end
+       
+       function ret = getSkel(obj)
+           mapd = ~imdilate(~obj.map, strel('square', 21));
+           ret = bwmorph(mapd, 'thin', Inf);
+       end
+       
+       function ret = getSkelList(obj)
+           skel = obj.getSkel();
+           [q,w] = size(skel);
+           ret = [];
+           for i = 1 : q
+               for j = 1 : w
+                   if skel(i,j) == 1
+                       ret(end+1,:) = [i,j];
+                   end
+               end
+           end
+       end
        
        function showMap(obj)
            imshow(obj.map);
