@@ -2,13 +2,11 @@ function ret = voronoi()
     k = 5;
     m = mapClass();
     mapa = m.getMap();
-
-    skel = bwmorph(mapa, 'thin', Inf);
-    imshow(skel)
     
+    mapd = ~imdilate(~mapa, strel('square', 21));    
+    skel = bwmorph(mapd, 'thin', Inf);
+    imshow(skel);
     
-    
-
     %find first contour point
     [he,wi] = size(skel);
     nfound = true;
@@ -62,3 +60,4 @@ function [xx,yy] = getnext(imgc, x, y)
     end
     xx = aux;
     yy = auy;
+    

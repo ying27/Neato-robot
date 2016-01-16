@@ -4,7 +4,7 @@ classdef robotClass<handle
         y;
         leftWheel;
         rightWheel;
-        orientation;
+        orient;
         sck;
         map;
     end
@@ -15,14 +15,12 @@ classdef robotClass<handle
             obj@handle();
             
             %Punto C
-            %obj.x = 132;
-            %obj.y = 95;
-            obj.x = 0;
-            obj.y = 0;
+            obj.x = 132;
+            obj.y = 95;
             
             %grados respecto a al eje x del mapa
             %el eje x del robot es mirando en frente
-            obj.orientation = 0;
+            obj.orient = 0;
             
             obj.sck = sck;
             obj.leftWheel = 0;
@@ -38,10 +36,11 @@ classdef robotClass<handle
             ret = obj.map.getMap();
         end
         
-        function [a,b] = lo2glo(obj,xx,yy)
+        function [a,b] = lo2glo(obj,x,y)
             %Transforms local coordinates to global coordinates
-            %xx = cos(obj.orientation)*x + sin(obj.orientation)*y;
-            %yy = -sin(obj.orientation)*x + cos(obj.orientation)*y;
+            xx = round(cos(deg2rad(-obj.orient))*x + sin(deg2rad(-obj.orient))*y)
+            yy = round(-sin(deg2rad(-obj.orient))*x + cos(deg2rad(-obj.orient))*y)
+            
             q = local2globalcoord([xx;yy;0],'rr',[obj.x;obj.y;0]);
             a = q(1);
             b = q(2);
@@ -49,8 +48,9 @@ classdef robotClass<handle
            
         function [a,b] = glo2lo(obj,x,y)
             %Transforms global coordinates to local coordinates
-            xx = cos(obj.orientation)*x + sin(obj.orientation)*y;
-            yy = -sin(obj.orientation)*x + cos(obj.orientation)*y;
+            xx = round(cos(deg2rad(-obj.orient))*x + sin(deg2rad(-obj.orient))*y)
+            yy = round(-sin(deg2rad(-obj.orient))*x + cos(deg2rad(-obj.orient))*y)
+            
             q = global2localcoord([xx;yy;0],'rr',[obj.x;obj.y;0]);
             a = q(1);
             b = q(2);
@@ -94,8 +94,8 @@ classdef robotClass<handle
             if (alpha < 0)
                 alpha = alpha + 360;
             end
-                        
-            %Rotate the robot to the correct orientation
+                                    
+            %Rotate the robot to the correct orient
             obj.rotate(alpha);
             
             speed = 120;
@@ -117,8 +117,8 @@ classdef robotClass<handle
             datam = obj.sck.sendMsg(obj.sck,msg);
             display(datam);
             pause(abs(dist/speed));            
-            
-            obj.orientation = mod(obj.orientation + alpha,360);
+            %Actualizar la ortientacion del robot
+            obj.orient = mod(obj.orient + alpha,360);
         end
         
         function ret = detect(obj)
@@ -167,15 +167,14 @@ classdef robotClass<handle
                 okay = ~detect();
                 t = toc;
             end
-            %TODO: check if distant 0 and speed 0 works
-            msg = ['SetMotor LWheelDist ', num2str(0) ,' RWheelDist ', num2str(0) , ' Speed ', num2str(1)];
+            msg = ['SetMotor LWheelDist ', num2str(1) ,' RWheelDist ', num2str(1) , ' Speed ', num2str(1)];
             obj.sck.sendMsg(obj.sck,msg);
                         
             [l,r] = obj.readWheelPosition();
             dist = round(((l+r)/2)/10);
-            [a,b] = lo2glo(obj,0,dist);
-            obj.x = a;
-            obj.y = b;
+            q = lo2glo(obj,dist,0);
+            obj.x = q(1);
+            obj.y = q(2);
             %{
             if ~okay
                 dist = round(((l+r)/2)/10);
