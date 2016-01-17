@@ -38,8 +38,8 @@ classdef robotClass<handle
         
         function [a,b] = lo2glo(obj,x,y)
             %Transforms local coordinates to global coordinates
-            xx = round(cos(deg2rad(-obj.orient))*x + sin(deg2rad(-obj.orient))*y)
-            yy = round(-sin(deg2rad(-obj.orient))*x + cos(deg2rad(-obj.orient))*y)
+            xx = round(cos(deg2rad(-obj.orient))*x + sin(deg2rad(-obj.orient))*y);
+            yy = round(-sin(deg2rad(-obj.orient))*x + cos(deg2rad(-obj.orient))*y);
             
             q = local2globalcoord([xx;yy;0],'rr',[obj.x;obj.y;0]);
             a = q(1);
@@ -48,12 +48,10 @@ classdef robotClass<handle
            
         function [a,b] = glo2lo(obj,x,y)
             %Transforms global coordinates to local coordinates
-            xx = round(cos(deg2rad(-obj.orient))*x + sin(deg2rad(-obj.orient))*y)
-            yy = round(-sin(deg2rad(-obj.orient))*x + cos(deg2rad(-obj.orient))*y)
+            q = global2localcoord([x;y;0],'rr',[obj.x;obj.y;0]);
             
-            q = global2localcoord([xx;yy;0],'rr',[obj.x;obj.y;0]);
-            a = q(1);
-            b = q(2);
+            a = round(cos(deg2rad(obj.orient))*q(1) + sin(deg2rad(obj.orient))*q(2));
+            b = round(-sin(deg2rad(obj.orient))*q(1) + cos(deg2rad(obj.orient))*q(2));
         end
         
         function [a] = getObjects(obj)
