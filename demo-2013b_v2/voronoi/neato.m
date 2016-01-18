@@ -9,7 +9,7 @@ prompt = {'Connection information',};
 dlg_title = 'Connection';
 num_lines = 1;
 %def = {'172.16.10.5:20000',};  % Robot A
-def = {'172.16.10.5:20001',};  % Robot F
+def = {'172.16.10.5:20005',};  % Robot F
 %def = {'172.16.10.5:20002',};  % Robot C
 
 
@@ -33,22 +33,63 @@ if length(strfind(class(sck.skt()),'java.net.Socket')) == 1
         serialOK=0;
     end
     
-    if serialOK   % Communication Raspery - NEATO is running
-        %{
-        try
-            main(sck);
-            sck.close(sck);
-        catch e
-            sck.close(sck);
-        end
-        %}
-        yingmain(sck);
-        sck.close(sck);
+    if serialOK   % Communication Raspery - NEATO is running      
+          
+        % Send data mode message (required handshaking)
+        msg = ['DataMode listener']; % altres modes constant  moody
+        data = sck.sendMsg(sck,msg);
+        display(data);
         
+        msg = ['JoystickMode Off']; % altres modes constant  moody
+        data = sck.sendMsg(sck,msg);
+        display(data);
+        
+        % Wait lidar start
+        wait_lidar();
+        
+        %########## END NEEDED CODE ######################
+        
+        %#################################################
+        %### Demo robot movement and data acquisition ###
+        
+        initx = 132;
+        inity =  22;
+        finalx = 190;
+        finaly = 1221;
+        
+        m = mapClass();
+        rob = robotClass(sck,initx,inity,m);
+        dm = directedMap(m,initx,inity);
+        path = dm.getKQueuePath(finalx,finaly,50);
+        
+        while path.size() > 0
+            aux = path.remove()
+            mv = rob.moveTo(aux(1),aux(2));
+            rob.getPosition()
+            
+            if ~mv
+                dm = directedMap(rob.getMap(),rob.x,rob.y);
+                path = dm.getQueuePath(finalx,finaly);
+            end
+            
+            
+        end        
+        sck.close(sck);
         
         % Close connection
         %sck.close(sck);
     end
 end
+end
 
 %######## End Code ##########
+
+%######## Functions ##########
+function wait_lidar()  % Wait 4 seconds for lidar wake up
+    wt = waitbar(0,'Waiting Lidar Start...');
+    for p=1:4
+        pause(1);
+        waitbar(p/4,wt,'Waiting Lidar Start......');
+    end
+    close(wt);
+end

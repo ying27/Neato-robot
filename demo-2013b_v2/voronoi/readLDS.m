@@ -21,7 +21,7 @@ function [ret] = readLDS(sck)
             alpha = degtorad(parsed(i,1));
             dist = parsed(i,2)/10;
             newx = -(sin(alpha)*dist);
-            newy = cos(alpha)*dist-9.5;
+            newy = cos(alpha)*dist;%-9.5;
             ret(j,:) = [round(newx),round(newy)];
             j = j + 1;
         end
@@ -33,7 +33,7 @@ function [ret] = readLDS(sck)
             dist = parsed(i,2)/10;
             
             newx = -(cos(alpha)*dist);
-            newy = -(sin(alpha)*dist)-9.5;
+            newy = -(sin(alpha)*dist);%-9.5;
             ret(j,:) = [round(newx),round(newy)];
             j = j + 1;
         end
@@ -46,7 +46,7 @@ function [ret] = readLDS(sck)
             dist = parsed(i,2)/10;
             
             newx = sin(alpha)*dist;
-            newy = -(cos(alpha)*dist)-9.5;
+            newy = -(cos(alpha)*dist);%-9.5;
             ret(j,:) = [round(newx),round(newy)];
             j = j + 1;
         end
@@ -59,7 +59,7 @@ function [ret] = readLDS(sck)
             alpha = degtorad(parsed(i,1)-270);
             dist = parsed(i,2)/10;
             newx = cos(alpha)*dist;
-            newy = sin(alpha)*dist-9.5;
+            newy = sin(alpha)*dist;%-9.5;
             ret(j,:) = [round(newx),round(newy)];
             j = j + 1;
         end

@@ -7,7 +7,16 @@ classdef mapClass<handle
        
        function obj = mapClass()
            obj@handle();
-           obj.map = logical(imread('map_100_bw.png'));
+           m = logical(imread('map_100_bw.png'));
+           %{
+           for i = 1 : 500
+               for j = 303 : 1310
+                   m(i,j) = false
+               end
+           end
+           %}
+           m(1:500,303:885) = false;
+           obj.map = m;
        end
               
        function ret = isEmpty(obj,x,y)
@@ -54,6 +63,7 @@ classdef mapClass<handle
        end
        
        function ret = getSkelList(obj)
+           display('random')
            skel = obj.getSkel();
            [q,w] = size(skel);
            ret = [];
@@ -67,6 +77,7 @@ classdef mapClass<handle
        end
        
        function showMap(obj)
+           figure;
            imshow(obj.map);
        end
    end

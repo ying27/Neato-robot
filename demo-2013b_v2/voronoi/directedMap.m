@@ -59,8 +59,10 @@ classdef directedMap<handle
        end
        
        function [pathx,pathy] = getNearestInPath(obj,x,y)
-           list = obj.map.getSkelList();
-           
+           mapa = obj.map
+           display('1');
+           list = mapa.getSkelList();
+           display('2');
            mi = obj.distp(x,y,list(1,1),list(1,2));
            pathx = list(1,1);
            pathy = list(1,2);
@@ -111,7 +113,7 @@ classdef directedMap<handle
            %get nearest end point (contained in the path)to the real
            %endpoint
            
-           [x,y] = obj.getNearestInPath(c,d)
+           [x,y] = obj.getNearestInPath(c,d);
            
            if obj.xx ~= obj.x || obj.yy ~= obj.y
                p(end+1,:) = [obj.x,obj.y];
@@ -146,9 +148,22 @@ classdef directedMap<handle
        function qp = getQueuePath(obj,c,d)
            import java.util.LinkedList
            pa = obj.getPath(c,d);
+           obj.map.showPathInMap(pa);
            qp = LinkedList();
            for i = 1 : size(pa)
-               qp.add(pa(i,:));               
+               qp.add(pa(i,:));
+           end
+       end
+       
+      function qp = getKQueuePath(obj,c,d,k)
+           import java.util.LinkedList
+           pa = obj.getPath(c,d);
+           obj.map.showPathInMap(pa);
+           qp = LinkedList();
+           for i = 1 : size(pa)
+               if mod(i,k) == 0
+                qp.add(pa(i,:));
+               end
            end
        end
        

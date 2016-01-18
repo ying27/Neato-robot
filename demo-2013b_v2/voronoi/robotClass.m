@@ -33,7 +33,7 @@ classdef robotClass<handle
         end
         
         function ret = getMap(obj)
-            ret = obj.map.getMap();
+            ret = obj.map;
         end
         
         function [a,b] = lo2glo(obj,x,y)
@@ -71,8 +71,8 @@ classdef robotClass<handle
             msg = ['GetMotors LeftWheel RightWheel'];
             data = obj.sck.sendMsg(obj.sck,msg);
             C = regexp(char(data), '[;,]', 'split');
-            laux = C(9);
-            raux = C(17);
+            laux = str2double(C(1,9));
+            raux = str2double(C(1,17));
             l = laux - obj.leftWheel;
             r = raux - obj.rightWheel;
             obj.leftWheel = laux;
@@ -81,11 +81,11 @@ classdef robotClass<handle
         
         function okay = moveTo(obj,x,y)
             
-            dist = sqrt((x-obj.x)^2+(y-obj.y)^2);
+            dist = sqrt((x-obj.x)^2+(y-obj.y)^2)*10;
             
-            q = obj.glo2lo(x,y)';
-            x = q(1);
-            y = q(2);
+            [q1,q2] = obj.glo2lo(x,y);
+            x = q1;
+            y = q2;
             
             alpha = atan2(y, x) - atan2(0, 1);
             alpha = alpha * 360 / (2*pi);
@@ -99,8 +99,8 @@ classdef robotClass<handle
             speed = 120;
             msg = ['SetMotor LWheelDist ', num2str(dist) ,' RWheelDist ', num2str(dist) , ' Speed ', num2str(speed)];
             datam = obj.sck.sendMsg(obj.sck,msg);
-            display(datam);
-            okay = obj.wait(dist/speed);
+            %display(datam);
+            okay = obj.wait(dist,speed);
             aux = obj.getObjects();    
             obj.map.setAllDots(aux);
         end
@@ -109,11 +109,16 @@ classdef robotClass<handle
             %Alpha must be positive
             rel = 190/90;
             speed = 120;
-            dist = round(alpha*rel);
+            if alpha > 180
+               dist = round(((360-alpha))*rel)*-1;
+            else
+               dist = round(alpha*rel);
+            end
+            
             msg = ['SetMotor LWheelDist ', num2str(-dist) ,' RWheelDist ', num2str(dist) , ' Speed ', num2str(speed)];
             obj.sck.sendMsg(obj.sck,msg);
             datam = obj.sck.sendMsg(obj.sck,msg);
-            display(datam);
+            %display(datam);
             pause(abs(dist/speed));            
             %Actualizar la ortientacion del robot
             obj.orient = mod(obj.orient + alpha,360);
@@ -162,7 +167,7 @@ classdef robotClass<handle
             t = toc;
             okay = true;
             while (t < tlimit && okay)
-                okay = ~detect();
+                okay = ~obj.detect();
                 t = toc;
             end
             msg = ['SetMotor LWheelDist ', num2str(1) ,' RWheelDist ', num2str(1) , ' Speed ', num2str(1)];
@@ -170,9 +175,9 @@ classdef robotClass<handle
                         
             [l,r] = obj.readWheelPosition();
             dist = round(((l+r)/2)/10);
-            q = lo2glo(obj,dist,0);
-            obj.x = q(1);
-            obj.y = q(2);
+            [q1,q2] = lo2glo(obj,dist,0);
+            obj.x = q1;
+            obj.y = q2;
             %{
             if ~okay
                 dist = round(((l+r)/2)/10);
