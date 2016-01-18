@@ -73,7 +73,8 @@ if length(strfind(class(sck.skt()),'java.net.Socket')) == 1
             end
             
             
-        end        
+        end
+        rob.getMap().showMap();
         sck.close(sck);
         
         % Close connection

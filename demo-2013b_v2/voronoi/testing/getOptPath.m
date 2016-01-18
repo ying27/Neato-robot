@@ -15,7 +15,7 @@ function ret = getOptPath(path)
             op(i,:) = [xx,yy];
         end
         
-        limit = 5 + abs(op(1,2));
+        limit = 10 + abs(op(1,2));
         if any(abs(op(2:(end-1),2)) > limit)
             half = round(size(path)/2);
             head = path(1:half,:);

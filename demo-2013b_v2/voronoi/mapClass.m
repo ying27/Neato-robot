@@ -63,7 +63,6 @@ classdef mapClass<handle
        end
        
        function ret = getSkelList(obj)
-           display('random')
            skel = obj.getSkel();
            [q,w] = size(skel);
            ret = [];
