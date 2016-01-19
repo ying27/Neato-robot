@@ -39,6 +39,7 @@ classdef mapClass<handle
        end
        
        function showPathInMap(obj,a)
+           figure;
            [h w] = size(a);
            aux = obj.map;
            
@@ -47,8 +48,8 @@ classdef mapClass<handle
                    aux(a(i,1),a(i,2)) = 0;
                end
            end
-           
-           imshow(aux);
+           figure;
+           imshow(aux)
            
        end
        
@@ -77,7 +78,7 @@ classdef mapClass<handle
        
        function showMap(obj)
            figure;
-           imshow(obj.map);
+           imshow(obj.map)
        end
    end
 end

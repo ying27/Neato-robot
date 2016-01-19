@@ -1,13 +1,16 @@
 function [ret] = readLDS(sck)
+    %returns the objects in the local map.
+    %the result is a list of coordinates (x,y)
     msg = ['GetLDSScan'];
     data = sck.sendMsg(sck,msg);
     C = regexp(char(data), '[;]', 'split');
     C = C(3:362);
     j = 1;
+    ret = [];
     parsed = zeros(360,3);
     for index = 1:360
        aux = regexp(char(C(index)), '[,]', 'split');
-       if str2double(char(aux(2))) < 5000
+       if str2double(char(aux(2))) < 500
            parsed(index,:) = [index,str2double(char(aux(2))),str2double(char(aux(3)))];
            %j = j + 1;
        else

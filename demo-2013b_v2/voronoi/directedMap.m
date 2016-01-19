@@ -25,6 +25,8 @@ classdef directedMap<handle
             obj.yy = bb;
             
             skel = map.getSkel();
+            figure;
+            imshow(skel);
             
             [a b] = size(skel);
             
@@ -197,7 +199,8 @@ classdef directedMap<handle
             import java.util.LinkedList
             pa = obj.getOptimalPath(c,d);
             figure;
-            obj.map.showPathInMap(pa);
+            scatter(pa(:,1),pa(:,2));
+            %obj.map.showPathInMap(pa);
             qp = LinkedList();
             for i = 1 : size(pa)
                 qp.add(pa(i,:));
