@@ -39,7 +39,6 @@ classdef mapClass<handle
        end
        
        function showPathInMap(obj,a)
-           figure;
            [h w] = size(a);
            aux = obj.map;
            
@@ -48,7 +47,6 @@ classdef mapClass<handle
                    aux(a(i,1),a(i,2)) = 0;
                end
            end
-           figure;
            imshow(aux)
            
        end
@@ -59,7 +57,7 @@ classdef mapClass<handle
        end
        
        function ret = getSkel(obj)
-           mapd = ~imdilate(~obj.map, strel('square', 21));
+           mapd = ~imdilate(~obj.map, strel('square', 15));
            ret = bwmorph(mapd, 'thin', Inf);
        end
        

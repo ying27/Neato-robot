@@ -25,8 +25,8 @@ classdef directedMap<handle
             obj.yy = bb;
             
             skel = map.getSkel();
-            figure;
-            imshow(skel);
+            %figure;
+            %imshow(skel);
             
             [a b] = size(skel);
             
@@ -143,6 +143,8 @@ classdef directedMap<handle
             if p(end,1) ~= c || p(end,2) ~= d
                 p(end+1,:) = [c,d];
             end
+ 
+            obj.map.showPathInMap(p);
         end
         
         function kp = getKPath(obj,c,d,k)
@@ -169,7 +171,7 @@ classdef directedMap<handle
         function qp = getKQueuePath(obj,c,d,k)
             import java.util.LinkedList
             pa = obj.getPath(c,d);
-            obj.map.showPathInMap(pa);
+            %obj.map.showPathInMap(pa);
             qp = LinkedList();
             for i = 1 : size(pa)
                 if mod(i,k) == 0
@@ -181,6 +183,7 @@ classdef directedMap<handle
         function ret = getOptimalPath(obj,c,d)
             path = getKPath(obj,c,d,10);
             ret = [path(1,:)];
+            
             
             alpha = abs(atan((path(2,2)-path(1,2))/(path(2,1)-path(1,1))));
             
@@ -198,8 +201,8 @@ classdef directedMap<handle
         function qp = getOptimalQueuePath(obj,c,d)
             import java.util.LinkedList
             pa = obj.getOptimalPath(c,d);
-            figure;
-            scatter(pa(:,1),pa(:,2));
+            %figure;
+            %scatter(pa(:,1),pa(:,2));
             %obj.map.showPathInMap(pa);
             qp = LinkedList();
             for i = 1 : size(pa)

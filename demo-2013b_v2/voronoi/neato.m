@@ -9,7 +9,7 @@ function neato()
     dlg_title = 'Connection';
     num_lines = 1;
     %def = {'172.16.10.5:20000',};  % Robot A
-    def = {'172.16.10.5:20004',};  % Robot F
+    def = {'172.16.10.5:20005',};  % Robot F
     %def = {'172.16.10.5:20002',};  % Robot C
 
 
@@ -72,8 +72,9 @@ function neato()
                 sck.close(sck);
                 %}
                 
-                initx = 128;
-                inity =  43;
+                %initx = 124;
+                initx = 124;
+                inity =  52;
                 
                 %initx = 132;
                 %inity =  22;
@@ -84,6 +85,7 @@ function neato()
                 rob = robotClass(sck,initx,inity,m);
                 dm = directedMap(m,initx,inity);
                 path = dm.getOptimalQueuePath(finalx,finaly);
+                %path = dm.getKQueuePath(finalx,finaly,50);
 
                 while path.size() > 0
                     aux = path.remove()
@@ -93,6 +95,7 @@ function neato()
                     if ~mv
                         dm = directedMap(rob.getMap(),rob.x,rob.y);
                         path = dm.getOptimalQueuePath(finalx,finaly);
+                        %path = dm.getKQueuePath(finalx,finaly,50);
                     end
 
 
@@ -103,6 +106,16 @@ function neato()
                 % Close connection
                 %sck.close(sck);
                 
+                
+                %{
+                initx = 124;
+                inity =  52;
+                m = mapClass();
+                rob = robotClass(sck,initx,inity,m);
+                q = rob.getObjects();
+                scatter(q(:,1),q(:,2));
+                sck.close(sck);
+                %}
             end
         end
         

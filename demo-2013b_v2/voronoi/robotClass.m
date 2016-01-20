@@ -70,7 +70,6 @@ classdef robotClass<handle
                 [q,w] = obj.lo2glo(ldsscan(i,1),ldsscan(i,2));
                 a(i,:) = [q,w];
             end
-            
         end
         
         function [a] = getObjectsFromLDS(obj,ldsscan)
@@ -126,8 +125,8 @@ classdef robotClass<handle
             obj.sck.sendMsg(obj.sck,msg);
             okay = obj.wait(dist,speed);
             %beta
-            aux = obj.getObjects();    
-            obj.map.setAllDots(aux);
+            %aux = obj.getObjects();    
+            %obj.map.setAllDots(aux);
             %%%%%
         end
         
@@ -150,7 +149,7 @@ classdef robotClass<handle
             obj.orient = mod(obj.orient + alpha,360);
         end
         
-        function ret = detect(~,ldsscan)
+        function ret = detect(obj,ldsscan)
             ret = false;
             %ldsscan = readLDS(obj.sck);
             [h,w] = size(ldsscan);
@@ -158,15 +157,13 @@ classdef robotClass<handle
             i = 1;
             
             while (i < h && ~ret)
-                if (ldsscan(i,2) > 0 && ldsscan(i,2) <= 55)
-                    if ldsscan(i,1) <= 18 &&  ldsscan(i,1) >= -18
+                if (ldsscan(i,1) > 0 && ldsscan(i,1) <= 65)
+                    if ldsscan(i,2) <= 18 &&  ldsscan(i,2) >= -18
                         ret = true;
                     end
                 end
                 i = i+1;
-            end
-            
-            
+            end            
         end
         
         function okay = wait(obj,dist,speed)
@@ -183,26 +180,46 @@ classdef robotClass<handle
                     break;
                 end
                 %beta%
-                %{
+                
                 dist = round(((l+r)/2)/10);
                 [q1,q2] = lo2glo(obj,dist,0);
                 obj.x = q1;
                 obj.y = q2;
-                aux = obj.getObjectsFromLDS(ldsscan);
+                aux = vertcat(aux,obj.getObjectsFromLDS(ldsscan));
+                %aux = obj.getObjectsFromLDS(ldsscan);
                 obj.map.setAllDots(aux);
-                %}
+                
                 %%%%%%
                 t = toc;
             end
+            %msg = ['SetMotor LWheelDist ', num2str(1) ,' RWheelDist ', num2str(1) , ' Speed ', num2str(1)];
+            %obj.sck.sendMsg(obj.sck,msg);
+            
             msg = ['SetMotor LWheelDist ', num2str(1) ,' RWheelDist ', num2str(1) , ' Speed ', num2str(1)];
             obj.sck.sendMsg(obj.sck,msg);
-                        
+            
+            obj.map.setAllDots(aux);
+            
             [l,r] = obj.readWheelPosition();
             dist = round(((l+r)/2)/10);
             [q1,q2] = lo2glo(obj,dist,0);
             obj.x = q1;
             obj.y = q2;
+            %scatter(q1,q2);
             
+            if ~okay
+                msg = ['SetMotor LWheelDist ', num2str(-150) ,' RWheelDist ', num2str(-150) , ' Speed ', num2str(120)];
+                obj.sck.sendMsg(obj.sck,msg);
+                pause(150/120);
+                
+                
+                [l,r] = obj.readWheelPosition();
+                dist = abs(round(((l+r)/2)/10));
+                [q1,q2] = lo2glo(obj,-dist,0);
+                obj.x = q1;
+                obj.y = q2;                
+                
+            end
             
             
         end      
