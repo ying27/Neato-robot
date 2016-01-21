@@ -2,149 +2,83 @@ classdef directedMap<handle
     properties
         %object mapClass
         map;
-        %Cells of the directedMap
-        m;
+        %graph
+        g;
         %(x,y) is the starting point of the directed Map
         x;
         y;
-        %(xx,yy) is nearest point in the path to the starting point
-        xx;
-        yy;
+        %ninit is the nearest starting node from the voronoid graph
+        ninit;
+        %last calculated path
+        %path;
     end
     
     methods
         
         function obj = directedMap(map,x,y)
-            import java.util.LinkedList
             obj@handle();
             obj.map = map;
             obj.x = x;
             obj.y = y;
-            [aa,bb] = obj.getNearestInPath(x,y);
-            obj.xx = aa;
-            obj.yy = bb;
-            
-            skel = map.getSkel();
-            %figure;
-            %imshow(skel);
-            
-            [a b] = size(skel);
-            
-            m = cell(a,b);
-            q = LinkedList();
-            q.add([aa,bb]);
-            while q.size() ~= 0
-                ret = q.remove();
-                [skel, childs] = obj.getnexts(ret(1),ret(2),skel);
-                m(ret(1),ret(2)) = {childs};
-                for f = 1 : size(childs)
-                    q.add(childs(f,:));
-                end
+                        
+            sk = map.getSkel();
+
+            [row,col] = find(sk);
+
+            g = PGraph([]);
+            dict = containers.Map;
+
+            for i = 1 : size(row)
+               x = row(i);
+               y = col(i);
+               nid = g.add_node([x,y]);
+               dict(strcat(int2str(x),int2str(y))) = nid; 
+               %up
+               up = strcat(int2str(x-1),int2str(y));
+               if dict.isKey(up)
+                   ant = dict(up);
+                   g.add_edge(nid, ant);
+               end
+               %diagonals
+               dil = strcat(int2str(x-1),int2str(y-1));
+               if dict.isKey(dil)
+                   ant = dict(dil);
+                   g.add_edge(nid, ant);
+               end
+
+               dir = strcat(int2str(x+1),int2str(y-1));
+               if dict.isKey(dir)
+                   ant = dict(dir);
+                   g.add_edge(nid, ant);
+               end
+
+               %left
+               left = strcat(int2str(x),int2str(y-1));
+               if dict.isKey(left)
+                   ant = dict(left);
+                   g.add_edge(nid, ant);
+               end
             end
-            obj.m = m;
-        end
-        
-        function [imgc,a] = getnexts(~,x,y,imgc)
-            imgc(x,y) = 0;
-            a = [];
-            q = 1;
-            
-            for i=x-1:x+1
-                for j=y-1:y+1
-                    if imgc(i,j) == 1
-                        a(q,:) = [i,j];
-                        q = q + 1;
-                    end
-                end
-            end
-            
-        end
-        
-        function [pathx,pathy] = getNearestInPath(obj,x,y)
-            mapa = obj.map;
-            list = mapa.getSkelList();
-            mi = obj.distp(x,y,list(1,1),list(1,2));
-            pathx = list(1,1);
-            pathy = list(1,2);
-            
-            for i = 2 : size(list)
-                q = obj.distp(x,y,list(i,1),list(i,2));
-                if q < mi
-                    mi = q;
-                    pathx = list(i,1);
-                    pathy = list(i,2);
-                end
-            end
-        end
-        
-        function mi = getNearest(obj,x,y,xx,yy)
-            %Used in the getPath in order to pick the shortest way when
-            %there are multiple branchs in the voronoi
-            
-            %(x,y) = final point
-            %(xx,yy) = starting point
-            
-            import java.util.LinkedList
-            
-            mi = obj.distp(x,y,xx,yy);
-            q = LinkedList();
-            
-            w = cell2mat(obj.m(xx,yy));
-            for i = 1 : size(w)
-                q.add(w(i,:));
-            end
-            
-            while mi > 0 && q.size() ~= 0
-                aux = q.remove();
-                w = cell2mat(obj.m(aux(1),aux(2)));
-                for i = 1 : size(w)
-                    q.add(w(i,:));
-                end
-                mi = min(mi,obj.distp(x,y,aux(1),aux(2)));
-            end
+
+            n = g.closest([obj.x,obj.y]);
+            obj.ninit = n;
+            obj.g = g;
+            %obj.path = [];
         end
         
         function ret = distp(~,x,y,xx,yy)
             ret = sqrt((xx-x)^2+(yy-y)^2);
-        end
-        
+        end        
+                
         function p = getPath(obj,c,d)
-            p = [];
-            %get nearest end point (contained in the path)to the real
-            %endpoint
-            
-            [x,y] = obj.getNearestInPath(c,d);
-            
-            if obj.xx ~= obj.x || obj.yy ~= obj.y
-                p(end+1,:) = [obj.x,obj.y];
-            end
-            
-            p(end+1,:) = [obj.xx,obj.yy];
-            
-            q = cell2mat(obj.m(obj.xx,obj.yy));
-            while size(q) > 0
-                aux = q(1,:);
-                if size(q) > 1
-                    mi = obj.getNearest(x,y,aux(1),aux(2));
-                    for i = 2 : size(q)
-                        if obj.getNearest(x,y,q(i,1),q(i,2)) < mi
-                            aux = q(i,:);
-                        end
-                    end
-                end
-                p(end+1,:) = aux;
-                if aux(1) == x && aux(2) == y
-                    q = [];
-                else
-                    q = cell2mat(obj.m(aux(1),aux(2)));
-                end
-            end
-            
-            if p(end,1) ~= c || p(end,2) ~= d
-                p(end+1,:) = [c,d];
-            end
- 
+            nfinal = obj.g.closest([c,d]);
+            q = obj.g.Astar(obj.ninit,nfinal);
+            p = obj.g.coord(q(:))';
+            p(end+1,:) = [c,d];
+            %obj.path = p;
+            hold off
             obj.map.showPathInMap(p);
+            hold on
         end
         
         function kp = getKPath(obj,c,d,k)
@@ -181,29 +115,35 @@ classdef directedMap<handle
         end
         
         function ret = getOptimalPath(obj,c,d)
-            path = getKPath(obj,c,d,10);
+            path = getPath(obj,c,d);
+            
+            ret = DouglasPeucker(path,0.75,false)
+            for i = 1 : size(ret);
+               scatter(ret(i,2),ret(i,1),'+','g.') 
+            end
+            %{
             ret = [path(1,:)];
-            
-            
-            alpha = abs(atan((path(2,2)-path(1,2))/(path(2,1)-path(1,1))));
-            
-            for i = 2:(size(path)-2)
-                aux = abs(atan((path(i,2)-ret(end,2))/(path(i,1)-ret(end,1))));
-                if (aux > alpha*1.02 || aux < alpha*0.98) %&& (abs(alpha - aux) >= 0.2662)
+                        
+                      
+            for i = 2:(size(path)-1)
+                dist = obj.distp(path(i-1,1),path(i-1,2),path(i+1,1),path(i+1,2))
+                if dist == 2
+                    ndist = obj.distp(path(i-1,1),path(i-1,2),path(i,1),path(i,2));
+                    ndist = ndist + obj.distp(path(i,1),path(i,2),path(i+1,1),path(i+1,2));
+                    if ndist ~= 2
+                        ret(end+1,:) = path(i,:);
+                    end
+                elseif (dist < 2.82 || dist > 2.83) %&& (dist < 2.23 || dist > 2.24)
                     ret(end+1,:) = path(i,:);
-                    alpha = abs(atan((path(i+1,2)-ret(end,2))/(path(i+1,1)-ret(end,1))));
                 end
             end
-            ret(end+1,:) = path(end-1,:);
             ret(end+1,:) = path(end,:);
+            %}
         end
         
         function qp = getOptimalQueuePath(obj,c,d)
             import java.util.LinkedList
             pa = obj.getOptimalPath(c,d);
-            %figure;
-            %scatter(pa(:,1),pa(:,2));
-            %obj.map.showPathInMap(pa);
             qp = LinkedList();
             for i = 1 : size(pa)
                 qp.add(pa(i,:));

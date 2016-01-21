@@ -85,7 +85,7 @@ function neato()
                 rob = robotClass(sck,initx,inity,m);
                 dm = directedMap(m,initx,inity);
                 path = dm.getOptimalQueuePath(finalx,finaly);
-                %path = dm.getKQueuePath(finalx,finaly,50);
+                scatter(inity,initx,'o','b.')
 
                 while path.size() > 0
                     aux = path.remove()
@@ -95,6 +95,7 @@ function neato()
                     if ~mv
                         dm = directedMap(rob.getMap(),rob.x,rob.y);
                         path = dm.getOptimalQueuePath(finalx,finaly);
+                        scatter(rob.y,rob.x,'o','b.')
                         %path = dm.getKQueuePath(finalx,finaly,50);
                     end
 

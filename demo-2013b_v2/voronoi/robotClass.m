@@ -185,6 +185,7 @@ classdef robotClass<handle
                 [q1,q2] = lo2glo(obj,dist,0);
                 obj.x = q1;
                 obj.y = q2;
+                scatter(q2,q1,'o','b.')
                 aux = vertcat(aux,obj.getObjectsFromLDS(ldsscan));
                 %aux = obj.getObjectsFromLDS(ldsscan);
                 obj.map.setAllDots(aux);
@@ -205,7 +206,7 @@ classdef robotClass<handle
             [q1,q2] = lo2glo(obj,dist,0);
             obj.x = q1;
             obj.y = q2;
-            %scatter(q1,q2);
+            scatter(q2,q1,'o','b.')
             
             if ~okay
                 msg = ['SetMotor LWheelDist ', num2str(-150) ,' RWheelDist ', num2str(-150) , ' Speed ', num2str(120)];
